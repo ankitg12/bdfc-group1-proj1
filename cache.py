@@ -11,7 +11,7 @@ import json
 import sqlite3
 import commons
 
-AGE=2000
+AGE=60000
 PORT_NUMBER = 8082
 SERVER_PORT_NUMBER = "8081"
 
