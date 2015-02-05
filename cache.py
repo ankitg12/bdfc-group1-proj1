@@ -11,6 +11,7 @@ import json
 import sqlite3
 import commons
 
+AGE=2000
 PORT_NUMBER = 8082
 SERVER_PORT_NUMBER = "8081"
 
@@ -46,6 +47,10 @@ class Handler(BaseHTTPRequestHandler):
             if (id in cache):
                     res=cache[id]   
                     res.cached="1"
+                    age= commons.currenttimemillis() - int(res.serverendtime) 
+                    print("Cache age ", age)
+                    if (age > AGE ):
+                        res=0
             if (res==0):
                     res=self.queryServer(id)
                     res.cached="0"

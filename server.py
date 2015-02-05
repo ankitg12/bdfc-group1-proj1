@@ -12,6 +12,8 @@ import sqlite3
 import commons
 
 PORT_NUMBER = 8081
+SLEEP=0
+
 
 ID=0
 CAPCITY=1
@@ -69,7 +71,7 @@ class Handler(BaseHTTPRequestHandler):
         parsedURL = urllib.parse.urlparse(self.path)
         params = urllib.parse.parse_qs(parsedURL.query)
         print (params, threadname)
-        time.sleep(10)
+        time.sleep(SLEEP)
 
         if self.path.startswith('/QUERY/'):
             res = self.getprice(params["id"][0])
