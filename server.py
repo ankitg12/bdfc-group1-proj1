@@ -69,7 +69,7 @@ class Handler(BaseHTTPRequestHandler):
         parsedURL = urllib.parse.urlparse(self.path)
         params = urllib.parse.parse_qs(parsedURL.query)
         print (params, threadname)
-        time.sleep(0)
+        time.sleep(10)
 
         if self.path.startswith('/QUERY/'):
             res = self.getprice(params["id"][0])
