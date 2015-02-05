@@ -9,6 +9,7 @@ import time
 from urllib.request import urlopen
 import json
 import sqlite3
+import commons
 
 PORT_NUMBER = 8081
 
@@ -27,27 +28,41 @@ class Handler(BaseHTTPRequestHandler):
             cursor = c.execute('SELECT *  from flights WHERE id ='+id)
             row=cursor.fetchone()
             conn.close()
+            res=commons.Record("")
             price = row[PMIN] + row[PRICESTEP] *  ((row[CAPCITY] - row[AVAILABLE]) // row[SEATSTEP])
-            return 'id:' +str (row[ID])+ ',capacity:' +str (row[CAPCITY])+ ',available:' +str(row[AVAILABLE])+ ',price = '+ str(price) + '\n'
+            res.id=row[ID]
+            res.capacity=row[CAPCITY]
+            res.available=row[AVAILABLE]
+            res.price = price
+            res.api='QUERY'
+            return res
 
     def book(self,id,bookingPrice):
-            print ('Querying db for price')
+            print ('booking')
+            res=commons.Record("")
             conn = sqlite3.connect('flightrecords.db')
             c = conn.cursor()
             cursor = c.execute('SELECT *  from flights WHERE id ='+id)
             row=cursor.fetchone()
             price = row[PMIN] + row[PRICESTEP] *  ((row[CAPCITY] - row[AVAILABLE]) // row[SEATSTEP])
-            if(bookingPrice!=str(price)):            
-                    return 'status:FAILED, id:' +str (row[ID])+ ',capacity:' +str (row[CAPCITY])+ ',available:' +str(row[AVAILABLE])+ ',price = '+ str(price) + '\n'
-            cursor = c.execute('UPDATE flights SET available = available - 1 WHERE id ='+id)
-            conn.commit()
+            if(bookingPrice!=str(price)):           
+                    res.bookingstatus="FAILED"
+            else:
+                    cursor = c.execute('UPDATE flights SET available = available - 1 WHERE id ='+id)
+                    conn.commit()
+                    res.bookingstatus="SUCCESS"
             conn.close()
-            return 'status:SUCCESS, id:' +str (row[ID])+ ',capacity:' +str (row[CAPCITY])+ ',available:' +str(row[AVAILABLE]-1)+ ',price = '+ str(price) + '\n'
-            
-
+            res.id=row[ID]
+            res.capacity=row[CAPCITY]
+            res.available=row[AVAILABLE]
+            res.price = price
+            res.api='BOOK'
+            return res
 
     def do_GET(self):
         threadname = threading.currentThread().getName()
+        gatewaystartime=commons.currenttimemillis()
+        
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
@@ -57,21 +72,14 @@ class Handler(BaseHTTPRequestHandler):
         time.sleep(0)
 
         if self.path.startswith('/QUERY/'):
-            price = self.getprice(params["id"][0])
-            print(price)
-            self.wfile.write(('API:QUERY,'+price+",").encode('utf-8'))
-            for y in params:
-                self.wfile.write((y + ':' + params[y][0] + ','
-                                 ).encode('utf-8'))
-            print ('EXIT,', threadname)
+            res = self.getprice(params["id"][0])
         elif self.path.startswith('/BOOK/'):
-            price = self.book(params["id"][0], params["bookingprice"][0])
-            print(price)
-            self.wfile.write(('API:BOOK,'+price+",").encode('utf-8'))
-            for y in params:
-                self.wfile.write((y + ':' + params[y][0] + ','
-                                 ).encode('utf-8'))
-            print ('EXIT,', threadname)
+            res = self.book(params["id"][0], params["bookingprice"][0])
+        res.thread=threadname
+        self.wfile.write(res.serialize().encode('utf-8'))
+        print ('EXIT,', threadname)
+        res.gatewayendtime=commons.currenttimemillis()
+        res.gatewaystartime=gatewaystartime
         return
 
 
