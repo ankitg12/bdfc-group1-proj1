@@ -61,7 +61,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         threadname = threading.currentThread().getName()
-        gatewaystartime=commons.currenttimemillis()
+        serverstartime=commons.currenttimemillis()
         
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -76,10 +76,10 @@ class Handler(BaseHTTPRequestHandler):
         elif self.path.startswith('/BOOK/'):
             res = self.book(params["id"][0], params["bookingprice"][0])
         res.thread=threadname
+        res.serverendtime=commons.currenttimemillis()
+        res.serverstartime=serverstartime
         self.wfile.write(res.serialize().encode('utf-8'))
         print ('EXIT,', threadname)
-        res.gatewayendtime=commons.currenttimemillis()
-        res.gatewaystartime=gatewaystartime
         return
 
 

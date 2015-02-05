@@ -12,6 +12,7 @@ import sqlite3
 import commons
 
 PORT_NUMBER = 8082
+SERVER_PORT_NUMBER = "8081"
 
 ID=0
 CAPCITY=1
@@ -19,26 +20,39 @@ AVAILABLE=2
 PMIN=3
 SEATSTEP=4
 PRICESTEP=5
+cache={}
 
 class Handler(BaseHTTPRequestHandler):
-    def getprice(self,id):
+    def getrealprice(self,id,res):
             print ('Querying db for price')
             conn = sqlite3.connect('flightrecords.db')
             c = conn.cursor()
             cursor = c.execute('SELECT *  from flights WHERE id ='+id)
             row=cursor.fetchone()
             conn.close()
-            res=commons.Record("")
             price = row[PMIN] + row[PRICESTEP] *  ((row[CAPCITY] - row[AVAILABLE]) // row[SEATSTEP])
-            res.id=row[ID]
-            res.capacity=row[CAPCITY]
-            res.available=row[AVAILABLE]
             res.realavailable=row[AVAILABLE]
-            res.price = price
             res.realprice = price
-            res.api='QUERY'
             return res
-
+            
+    def queryServer(self,id):
+            response = urlopen("http://localhost:"+ SERVER_PORT_NUMBER+ self.path)
+            res=commons.Record(response.read().decode())
+            return res
+            
+    def checkCache(self,id):
+            res=0
+            print ('Checking cache for price of ',id)
+            if (id in cache):
+                    res=cache[id]   
+                    res.cached="1"
+            if (res==0):
+                    res=self.queryServer(id)
+                    res.cached="0"
+                    self.getrealprice(id,res)
+                    cache[id]=res
+                    print("Cache miss")
+            return res
 
     def do_GET(self):
         threadname = threading.currentThread().getName()
@@ -51,12 +65,11 @@ class Handler(BaseHTTPRequestHandler):
         params = urllib.parse.parse_qs(parsedURL.query)
         print (params, threadname)
         time.sleep(0)
-        res = self.getprice(params["id"][0])
+        res = self.checkCache(params["id"][0])
+#        res.serverendtime=commons.currenttimemillis()
+#        res.serverstartime=serverstartime
         self.wfile.write(res.serialize().encode('utf-8'))
         print ('EXIT,', threadname)
-        res.serverendtime=commons.currenttimemillis()
-        res.serverstartime=serverstartime
-        res.cached="1"
         return
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
