@@ -12,7 +12,7 @@ import sqlite3
 import commons
 
 PORT_NUMBER = 8081
-SLEEP=0
+SLEEP=5
 
 
 ID=0
