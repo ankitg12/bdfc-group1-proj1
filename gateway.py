@@ -45,6 +45,7 @@ class Handler(BaseHTTPRequestHandler):
         res.clientendtime=commons.currenttimemillis()
         res.clientstarttime=clientstartime
         self.wfile.write (res.serialize().encode('utf-8'))
+        res.printLog()        
         print ('EXIT,', threadname)
         return
 

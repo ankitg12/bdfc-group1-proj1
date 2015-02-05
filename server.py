@@ -12,7 +12,7 @@ import sqlite3
 import commons
 
 PORT_NUMBER = 8081
-SLEEP=5
+SLEEP=0
 
 
 ID=0
@@ -37,6 +37,7 @@ class Handler(BaseHTTPRequestHandler):
             res.available=row[AVAILABLE]
             res.price = price
             res.api='QUERY'
+            res.bookingstatus="SUCCESS"
             return res
 
     def book(self,id,bookingPrice):
@@ -47,7 +48,7 @@ class Handler(BaseHTTPRequestHandler):
             cursor = c.execute('SELECT *  from flights WHERE id ='+id)
             row=cursor.fetchone()
             price = row[PMIN] + row[PRICESTEP] *  ((row[CAPCITY] - row[AVAILABLE]) // row[SEATSTEP])
-            if(bookingPrice!=str(price)):           
+            if( (bookingPrice!=str(price)) or (row[AVAILABLE]<=0) ):           
                     res.bookingstatus="FAILED"
             else:
                     cursor = c.execute('UPDATE flights SET available = available - 1 WHERE id ='+id)
@@ -58,6 +59,9 @@ class Handler(BaseHTTPRequestHandler):
             res.capacity=row[CAPCITY]
             res.available=row[AVAILABLE]
             res.price = price
+            res.realavailable=row[AVAILABLE]
+            res.realprice = price
+            res.bookingprice=bookingPrice
             res.api='BOOK'
             return res
 
@@ -80,6 +84,7 @@ class Handler(BaseHTTPRequestHandler):
         res.thread=threadname
         res.serverendtime=commons.currenttimemillis()
         res.serverstartime=serverstartime
+        res.printLog()
         self.wfile.write(res.serialize().encode('utf-8'))
         print ('EXIT,', threadname)
         return

@@ -57,19 +57,70 @@ class Record(object):
                 self.realprice=values[18]
                 self.realavailable=values[19]
         def log(self):
-                 print(self.serialize())
+                 print(self.serialize())        
+        def printLog(self):
+                printBLUE("Flight",self.id )
+                printYW("Customer id", self.customerid)
+                printYW("Price", self.price)                
+                if(self.price==self.realprice):
+                        printYG("Real Price", self.realprice)
+                else:
+                        printYR("Real Price", self.realprice)
+ 
+                if(str(self.price)==str(self.bookingprice)):
+                        printYG("Booking Price", self.bookingprice)
+                else:
+                        printYR("Booking Price", self.bookingprice)
+                printYW("Capacity", self.capacity)
+                printYW("Available", self.available)     
+                if(self.available==self.realavailable):
+                        printYG("Real Available", self.realavailable)
+                else:
+                        printYR("Real Available", self.realavailable)                            
+                if (self.bookingstatus=="SUCCESS"):
+                        printGREEN(self.api, self.bookingstatus)
+                else:
+                        printRED(self.api, self.bookingstatus)
+                if (self.cached=="1"):
+                        printYELLOW("Cached", "Yes")
+                elif (self.cached=="0"):
+                        printYELLOW("Cached", "No")                        
+                
+        #        str(self.id)+','+str+','+str(self.bookingprice)+','+str(self.available)+','+str(self.available)+','+str(self.source)+','+
+        #        str(self.dest)+','+str(self.bookingstatus)+','+str(self.cached)+','+str(self.serverstartime)+','+str(self.serverendtime)+','+
+         #       str(self.gatewaystartime)+','+str(self.gatewayendtime)+','+str(self.clientstarttime)+','+str(self.clientendtime)+','+str(self.thread)+','+str(self.api)
+          #      +','+str(self.customerid)+','+str(self.realprice)+','+str(self.realavailable)
         def serialize(self):
                 return(str(self.id)+','+str(self.price)+','+str(self.bookingprice)+','+str(self.available)+','+str(self.capacity)+','+str(self.source)+','+
                 str(self.dest)+','+str(self.bookingstatus)+','+str(self.cached)+','+str(self.serverstartime)+','+str(self.serverendtime)+','+
                 str(self.gatewaystartime)+','+str(self.gatewayendtime)+','+str(self.clientstarttime)+','+str(self.clientendtime)+','+str(self.thread)+','+str(self.api)
                 +','+str(self.customerid)+','+str(self.realprice)+','+str(self.realavailable)
                 )
+def printYW(s, v):
+                if(v!=""):
+                        print(Back.RESET + Fore.YELLOW +s+": "+ Fore.WHITE +str(v)+ Fore.RESET + Back.RESET + Style.RESET_ALL)
+def printYG(s, v):
+                if(v!=""):
+                        print(Back.RESET + Fore.YELLOW +s+": "+ Fore.GREEN +str(v)+ Fore.RESET + Back.RESET + Style.RESET_ALL)
+def printYR(s, v):
+                if(v!=""):
+                        print(Back.RESET + Fore.YELLOW +s+": "+ Fore.RED +str(v)+ Fore.RESET + Back.RESET + Style.RESET_ALL)
+def printRED(s, v):
+                if(v!=""):
+                        print(Back.RESET + Fore.YELLOW +s+": "+Back.RED +Fore.WHITE +str(v)+ Fore.RESET + Back.RESET + Style.RESET_ALL)
+def printGREEN(s, v):
+                if(v!=""):
+                        print(Back.RESET + Fore.YELLOW +s+": "+ Fore.WHITE+Back.GREEN +str(v)+ Fore.RESET + Back.RESET + Style.RESET_ALL)
+def printBLUE(s, v):
+                if(v!=""):
+                        print(Back.BLUE + Fore.YELLOW +s+": "+ Fore.WHITE +str(v)+ Fore.RESET + Back.RESET + Style.RESET_ALL)
+def printYELLOW(s, v):
+                if(v!=""):
+                        print(Back.YELLOW + Fore.BLACK +s+": " +str(v)+ Fore.RESET + Back.RESET + Style.RESET_ALL)
+def printYELLOW(s, v):
+                if(v!=""):
+                        print(Back.YELLOW + Fore.BLACK +s+": " +str(v)+ Fore.RESET + Back.RESET + Style.RESET_ALL)
 def printH1(s):
-                print(Back.GREEN+s+ Fore.RESET + Back.RESET + Style.RESET_ALL)
+                print(Back.GREEN+s + Fore.RESET + Back.RESET + Style.RESET_ALL)
 
 init()
-
-mystructure=Record('first,name,,,,,,,,,,,,,,,,,,,,,')
-print(mystructure.serialize())
-mystructure.log()
-

@@ -57,6 +57,7 @@ class Handler(BaseHTTPRequestHandler):
                     self.getrealprice(id,res)
                     cache[id]=res
                     print("Cache miss")
+            res.printLog()                    
             return res
 
     def do_GET(self):
