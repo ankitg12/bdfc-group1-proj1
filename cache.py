@@ -33,7 +33,9 @@ class Handler(BaseHTTPRequestHandler):
             res.id=row[ID]
             res.capacity=row[CAPCITY]
             res.available=row[AVAILABLE]
+            res.realavailable=row[AVAILABLE]
             res.price = price
+            res.realprice = price
             res.api='QUERY'
             return res
 
