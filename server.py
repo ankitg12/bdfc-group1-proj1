@@ -48,7 +48,7 @@ class Handler(BaseHTTPRequestHandler):
             cursor = c.execute('SELECT *  from flights WHERE id ='+id)
             row=cursor.fetchone()
             price = row[PMIN] + row[PRICESTEP] *  ((row[CAPCITY] - row[AVAILABLE]) // row[SEATSTEP])
-            if( (bookingPrice <=str(price)) or (row[AVAILABLE]<=0) ):           
+            if( (bookingPrice!=str(price)) or (row[AVAILABLE]<=0) ):           
                     res.bookingstatus="FAILED"
             else:
                     cursor = c.execute('UPDATE flights SET available = available - 1 WHERE id ='+id)
@@ -126,7 +126,7 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
 if __name__ == '__main__':
     server = ThreadedHTTPServer(('', PORT_NUMBER), Handler)
     server.initdb()
-    #server.dumpdb()
+    server.dumpdb()
 
     print ('Started database server on port ', PORT_NUMBER)
     server.request_queue_size = 5
