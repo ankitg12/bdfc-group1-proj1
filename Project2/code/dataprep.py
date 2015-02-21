@@ -43,16 +43,16 @@ def handlePage(page):
         features=[]
         if not ":" in title:
                 text=handleText(page.getElementsByTagName("text")[0])
-                return str(title)
-
-#                ingreds=handleIngredients(text)
-#                s=serialize(title,ingreds)
-#                if s:
-#                    print (s)
-
+                ingreds=handleIngredients(text)
+                s=serialize(title,ingreds)
+                if s:
+                    f = open('./cookbook/'+title+'.txt', 'w')
+                    f.write (text)
+                    f.close
+                    
 def handleTitle(title):
         return getText(title.childNodes)
-
+        
 def handleText(title):
         return getText(title.childNodes)
 
@@ -76,9 +76,9 @@ def handleIngredient(text):
                 features[v]=features[v]+1
         else:
                 features[v]=1
-        return v
-
-
+        return v        
+        
+        
 def handleIngredients(text):
         text.replace("\n"," ")
         ingreds={}
@@ -89,23 +89,19 @@ def handleIngredients(text):
                         if ":" in link.group(1):
                                 cat=handleCategory(link.group(1))
                                 if(not cat==""):
-                                        ingreds[cat]=10
-                        else:
+                                        ingreds[cat]=10    
+                        else:                              
                                 ing=handleIngredient(link.group(1))
-                                ingreds[ing]=1
+                                ingreds[ing]=1    
         return ingreds
-print (str(featureKeys).lstrip("[").rstrip("]"))
+#print (str(featureKeys).lstrip("[").rstrip("]"))
 
 from xml.dom import minidom
 xmldoc = minidom.parse('cookbook_import_pages_current.xml')
-#xmldoc = minidom.parse('../data/test.xml')
-itemlist = xmldoc.getElementsByTagName('page')
-fp=open("titles2.csv",'w')
-
+#xmldoc = minidom.parse('test.xml')
+itemlist = xmldoc.getElementsByTagName('page') 
 for s in itemlist :
-    fp.write(handlePage(s))
-
-fp.close()
+    handlePage(s)
 
 
 #for s in features.copy() :
